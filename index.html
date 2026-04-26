@@ -133,6 +133,21 @@
       background-size: auto, auto, var(--grid-size);
     }
     .hero-grid { display: grid; gap: 20px; align-items: center; }
+    .hero-logo-wrap { display: none; justify-content: center; }
+    .hero-logo {
+      width: 78px;
+      height: 78px;
+      border-radius: 18px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.24);
+      animation: heroBob 3.4s ease-in-out infinite;
+    }
+    @keyframes heroBob {
+      0%, 100% { transform: translateY(0); }
+      35% { transform: translateY(-7px); }
+      60% { transform: translateY(-2px); }
+    }
     .hero-tag { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 70%, transparent); padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; color: var(--text-muted); max-width: max-content; }
     .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); animation: pulse 1.5s infinite; }
     @keyframes pulse { to { box-shadow: 0 0 0 12px transparent; } }
@@ -166,10 +181,22 @@
     .bonus-card img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
 
     .service-topbar { display: grid; gap: 12px; margin: 22px 0; }
-    .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
-    .tab, .chip { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 9px 13px; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; transition: background var(--transition), transform var(--transition), border-color var(--transition); }
-    .tab:hover, .chip:hover { transform: translateY(-1px); }
-    .tab.active, .chip.active { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 65%, transparent); }
+    .tabs-wrap { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scroll-behavior: smooth; }
+    .tab { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 7px 11px; font-size: 0.86rem; line-height: 1.15; font-weight: 600; cursor: pointer; white-space: normal; text-align: center; display: inline-flex; align-items: center; gap: 6px; transition: background var(--transition), transform var(--transition), border-color var(--transition); }
+    .tab:hover { transform: translateY(-1px); }
+    .tab.active { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 65%, transparent); }
+    .scroll-tab-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0;
+    }
     .platform-icon { width: 16px; height: 16px; object-fit: contain; filter: contrast(0) brightness(2); opacity: 0.95; }
     [data-theme="light"] .platform-icon { filter: none; opacity: 0.95; }
 
@@ -177,7 +204,6 @@
     .input, .select { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--surface); color: var(--text); outline: none; transition: border-color var(--transition), box-shadow var(--transition); }
     .input:focus, .select:focus { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
 
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .services-grid { display: grid; grid-template-columns: 1fr; gap: 14px; min-height: 130px; }
     .service-card { border: 1px solid var(--border); border-radius: var(--card-radius); background: var(--surface); padding: 16px; display: grid; gap: 10px; box-shadow: var(--shadow); transform: translateY(8px); opacity: 0; animation: fadeUp 360ms ease forwards; }
     .service-card:hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 20px 30px rgba(0,0,0,0.24), 0 0 0 1px color-mix(in srgb, var(--accent) 36%, transparent); transform: translateY(-3px); }
@@ -214,8 +240,24 @@
     @keyframes shimmer { to { background-position-x: -200%; } }
 
     .error-box { border: 1px solid rgba(255,93,93,0.5); background: rgba(255,93,93,0.12); border-radius: 14px; padding: 16px; color: #ffd0d0; }
-    .testi-grid { margin-top: 22px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-    .testi-card { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: var(--surface); box-shadow: var(--shadow); }
+    .testi-controls { margin-top: 18px; display: flex; justify-content: flex-end; gap: 8px; }
+    .testi-viewport {
+      margin-top: 12px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+    .testi-track { display: flex; gap: 14px; width: max-content; padding-bottom: 6px; }
+    .testi-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      width: min(310px, 82vw);
+      flex: 0 0 auto;
+    }
     .stars { color: #ffd361; letter-spacing: 1px; font-size: 1.06rem; margin-bottom: 10px; }
     .quote { margin: 0 0 12px; color: var(--text-muted); font-style: italic; }
 
@@ -257,7 +299,7 @@
     .qty button { border: 0; width: 30px; height: 30px; background: transparent; color: var(--text); cursor: pointer; }
     .qty span { min-width: 32px; text-align: center; font-weight: 700; }
 
-    .floating-wa, .scroll-top {
+    .scroll-top {
       position: fixed;
       right: 16px;
       z-index: 900;
@@ -267,8 +309,7 @@
       box-shadow: var(--shadow);
       transition: transform var(--transition), opacity var(--transition);
     }
-    .floating-wa { bottom: 18px; padding: 13px 16px; background: #1fa855; color: #fff; font-weight: 700; }
-    .scroll-top { bottom: 78px; width: 42px; height: 42px; background: var(--accent); color: #031031; font-weight: 900; opacity: 0; pointer-events: none; transform: translateY(8px); }
+    .scroll-top { bottom: 18px; width: 42px; height: 42px; background: var(--accent); color: #031031; font-weight: 900; opacity: 0; pointer-events: none; transform: translateY(8px); }
     .scroll-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
     .promo-modal { position: fixed; inset: 0; z-index: 1300; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 20px; }
@@ -297,8 +338,15 @@
         transform: translateY(102%);
       }
       .cart-drawer.show { transform: translateY(0); }
-      .stats { grid-template-columns: 1fr; }
+      .hero-grid { text-align: center; justify-items: center; }
+      .hero-tag { margin-inline: auto; }
+      .hero p { margin-inline: auto; }
+      .cta-row { justify-content: center; }
+      .hero-logo-wrap { display: flex; }
       .hero { padding-top: 56px; }
+      .footer-grid { text-align: center; }
+      .footer-grid .brand { justify-content: center; }
+      .socials { justify-content: center; }
     }
   </style>
 </head>
@@ -315,7 +363,7 @@
 
   <div id="promoModal" class="promo-modal" role="dialog" aria-modal="true" aria-label="Promo">
     <div class="promo-box">
-      <button id="promoClose" class="promo-close" aria-label="Tutup">&times;</button>
+      <button id="promoClose" class="promo-close" aria-label="Tutup">x</button>
       <img id="promoImage" loading="lazy" alt="Promo" />
     </div>
   </div>
@@ -324,7 +372,7 @@
   <aside id="cartDrawer" class="cart-drawer" aria-label="Keranjang">
     <div class="cart-head row-between">
       <h3 style="margin:0; font-family:Syne,sans-serif;">Keranjang</h3>
-      <button class="icon-btn" id="closeCartBtn" aria-label="Tutup keranjang">&times;</button>
+      <button class="icon-btn" id="closeCartBtn" aria-label="Tutup keranjang">x</button>
     </div>
     <div id="cartList" class="cart-list"></div>
     <div class="cart-foot">
@@ -341,9 +389,9 @@
         <h2 id="brandName" class="brand-name">Brand</h2>
       </a>
       <div class="nav-actions">
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle tema">☀</button>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle tema">Theme</button>
         <button id="cartBtn" class="icon-btn" aria-label="Buka keranjang">
-          🛒
+          Cart
           <span id="cartBadge" class="cart-badge hidden">0</span>
         </button>
       </div>
@@ -353,6 +401,9 @@
   <main id="top">
     <section class="hero">
       <div class="container hero-grid">
+        <div id="heroLogoWrap" class="hero-logo-wrap">
+          <img id="heroLogo" class="hero-logo hidden" loading="lazy" alt="Logo hero" />
+        </div>
         <span class="hero-tag"><span class="pulse"></span><span id="heroTagline">Layanan aktif 24/7</span></span>
         <h1 id="heroTitle">Solusi Digital Terlengkap</h1>
         <p id="heroSubtitle">Boost followers, views, likes - cepat, aman, terjangkau.</p>
@@ -382,7 +433,7 @@
             <li>Klik Pesan Sekarang</li>
             <li>Kirim link akun/konten via WhatsApp</li>
             <li>Tunggu proses selesai</li>
-            <li>Jangan lupa klaim bonus 🎁</li>
+            <li>Jangan lupa klaim bonus</li>
           </ol>
         </article>
       </div>
@@ -399,13 +450,16 @@
     <section id="servicesSection" class="section">
       <div class="container">
         <h2 class="section-title">Daftar Layanan</h2>
-        <p class="muted">Pilih platform, filter kategori, lalu tambah ke keranjang.</p>
+        <p class="muted">Pilih platform lalu tambah layanan ke keranjang.</p>
 
         <div class="service-topbar">
-          <div id="platformTabs" class="tabs"></div>
-          <div id="jenisChips" class="chips"></div>
+          <div class="tabs-wrap">
+            <button id="platformPrev" class="scroll-tab-btn" type="button" aria-label="Geser platform ke kiri">&lt;</button>
+            <div id="platformTabs" class="tabs"></div>
+            <button id="platformNext" class="scroll-tab-btn" type="button" aria-label="Geser platform ke kanan">&gt;</button>
+          </div>
           <div class="control-row">
-            <input id="searchInput" class="input" type="search" placeholder="Cari layanan, jenis, platform..." autocomplete="off" />
+            <input id="searchInput" class="input" type="search" placeholder="Cari layanan atau platform..." autocomplete="off" />
             <select id="sortSelect" class="select" aria-label="Urutkan layanan">
               <option value="default">Default</option>
               <option value="cheap">Harga Termurah</option>
@@ -423,7 +477,13 @@
       <div class="container">
         <h2 class="section-title">Testimoni</h2>
         <p class="muted">Pengalaman pelanggan setelah order.</p>
-        <div id="testiGrid" class="testi-grid"></div>
+        <div class="testi-controls">
+          <button id="testiPrev" class="scroll-tab-btn" type="button" aria-label="Geser testimoni ke kiri">&lt;</button>
+          <button id="testiNext" class="scroll-tab-btn" type="button" aria-label="Geser testimoni ke kanan">&gt;</button>
+        </div>
+        <div id="testiViewport" class="testi-viewport">
+          <div id="testiGrid" class="testi-track"></div>
+        </div>
       </div>
     </section>
 
@@ -446,13 +506,11 @@
       </div>
       <div>
         <div id="socialLinks" class="socials"></div>
-        <a id="footerWaBtn" class="floating-wa" style="position:static; margin-top:14px; display:inline-block;" target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
       </div>
     </div>
   </footer>
 
-  <button id="scrollTopBtn" class="scroll-top" aria-label="Kembali ke atas">↑</button>
-  <a id="floatWaBtn" class="floating-wa" target="_blank" rel="noopener noreferrer">Chat WA</a>
+  <button id="scrollTopBtn" class="scroll-top" aria-label="Kembali ke atas">^</button>
 
   <script>
     (function () {
@@ -485,11 +543,12 @@
         services: [],
         testimonials: [],
         platform: "Semua",
-        jenis: "Semua",
         search: "",
         sort: "default",
         page: 1,
-        cart: []
+        cart: [],
+        testiAutoRaf: null,
+        testiAutoActive: false
       };
 
       const el = {
@@ -499,6 +558,8 @@
         loadingProgress: document.getElementById("loadingProgress"),
         brandName: document.getElementById("brandName"),
         brandLogo: document.getElementById("brandLogo"),
+        heroLogoWrap: document.getElementById("heroLogoWrap"),
+        heroLogo: document.getElementById("heroLogo"),
         heroTitle: document.getElementById("heroTitle"),
         heroSubtitle: document.getElementById("heroSubtitle"),
         heroTagline: document.getElementById("heroTagline"),
@@ -507,8 +568,9 @@
         themeToggle: document.getElementById("themeToggle"),
         cartBtn: document.getElementById("cartBtn"),
         cartBadge: document.getElementById("cartBadge"),
+        platformPrev: document.getElementById("platformPrev"),
+        platformNext: document.getElementById("platformNext"),
         platformTabs: document.getElementById("platformTabs"),
-        jenisChips: document.getElementById("jenisChips"),
         searchInput: document.getElementById("searchInput"),
         sortSelect: document.getElementById("sortSelect"),
         servicesGrid: document.getElementById("servicesGrid"),
@@ -521,6 +583,9 @@
         bonusSection: document.getElementById("bonusSection"),
         bonusGrid: document.getElementById("bonusGrid"),
         testiSection: document.getElementById("testiSection"),
+        testiViewport: document.getElementById("testiViewport"),
+        testiPrev: document.getElementById("testiPrev"),
+        testiNext: document.getElementById("testiNext"),
         testiGrid: document.getElementById("testiGrid"),
         noteSection: document.getElementById("noteSection"),
         noteBody: document.getElementById("noteBody"),
@@ -528,8 +593,6 @@
         footerBrand: document.getElementById("footerBrand"),
         footerText: document.getElementById("footerText"),
         socialLinks: document.getElementById("socialLinks"),
-        footerWaBtn: document.getElementById("footerWaBtn"),
-        floatWaBtn: document.getElementById("floatWaBtn"),
         scrollTopBtn: document.getElementById("scrollTopBtn"),
         cartOverlay: document.getElementById("cartOverlay"),
         cartDrawer: document.getElementById("cartDrawer"),
@@ -560,7 +623,6 @@
 
           applyBranding();
           renderPlatformTabs();
-          renderJenisChips();
           renderServices();
           renderTestimonials();
           renderInfo();
@@ -592,6 +654,13 @@
           renderServices();
         });
 
+        el.platformPrev.addEventListener("click", () => {
+          el.platformTabs.scrollBy({ left: -180, behavior: "smooth" });
+        });
+        el.platformNext.addEventListener("click", () => {
+          el.platformTabs.scrollBy({ left: 180, behavior: "smooth" });
+        });
+
         el.themeToggle.addEventListener("click", toggleTheme);
         el.cartBtn.addEventListener("click", () => setCartOpen(true));
         el.closeCartBtn.addEventListener("click", () => setCartOpen(false));
@@ -620,6 +689,13 @@
         el.promoModal.addEventListener("click", (e) => {
           if (e.target === el.promoModal) closePromo();
         });
+
+        el.testiPrev.addEventListener("click", () => scrollTestimonials(-1));
+        el.testiNext.addEventListener("click", () => scrollTestimonials(1));
+        el.testiViewport.addEventListener("mouseenter", stopTestiAutoScroll);
+        el.testiViewport.addEventListener("mouseleave", startTestiAutoScroll);
+        el.testiViewport.addEventListener("touchstart", stopTestiAutoScroll, { passive: true });
+        el.testiViewport.addEventListener("touchend", startTestiAutoScroll, { passive: true });
       }
 
       function startProgressAnimation() {
@@ -651,7 +727,7 @@
 
       function setTheme(theme) {
         el.body.setAttribute("data-theme", theme);
-        el.themeToggle.textContent = theme === "dark" ? "☀" : "🌙";
+        el.themeToggle.textContent = theme === "dark" ? "Light" : "Dark";
       }
 
       async function getAllData() {
@@ -776,7 +852,7 @@
             nama_layanan: sanitizeText(row.nama_layanan),
             platform: sanitizeText(row.platform),
             jenis_layanan: sanitizeText(row.jenis_layanan),
-            harga_num: toNumber(row.harga),
+            harga_num: parseHarga(row.harga),
             harga_raw: sanitizeText(row.harga),
             satuan: sanitizeText(row.satuan),
             badge: sanitizeText(row.badge),
@@ -832,14 +908,15 @@
         }
         setImageOrHide(el.brandLogo, b.logo_url);
         setImageOrHide(el.footerLogo, b.logo_url);
+        setImageOrHide(el.heroLogo, b.logo_url);
+        if ((b.logo_url || "").trim()) el.heroLogoWrap.classList.remove("hidden");
+        else el.heroLogoWrap.classList.add("hidden");
 
         const waNumber = sanitizeWa(b.wa_number || DEFAULT_WA);
         const waGreeting = b.wa_greeting || "Halo, saya ingin order:";
         const waBase = `https://wa.me/${waNumber}`;
         const waLink = `${waBase}?text=${encodeURIComponent(waGreeting)}`;
         el.ctaWhatsapp.href = waLink;
-        el.footerWaBtn.href = waLink;
-        el.floatWaBtn.href = waLink;
 
         const footerText = (b.footer_text || "").trim();
         if (footerText) {
@@ -910,38 +987,11 @@
           tab.innerHTML = `${platformIconHtml(p)}<span>${escapeHTML(p)}</span>`;
           tab.addEventListener("click", () => {
             state.platform = p;
-            state.jenis = "Semua";
             state.page = 1;
             renderPlatformTabs();
-            renderJenisChips();
             renderServices();
           });
           el.platformTabs.appendChild(tab);
-        });
-      }
-
-      function renderJenisChips() {
-        const jenisSet = new Set();
-        state.services.forEach((s) => {
-          if (state.platform !== "Semua" && s.platform !== state.platform) return;
-          if (s.jenis_layanan) jenisSet.add(s.jenis_layanan);
-        });
-        const chips = ["Semua", ...Array.from(jenisSet)];
-        if (!chips.includes(state.jenis)) state.jenis = "Semua";
-
-        el.jenisChips.innerHTML = "";
-        chips.forEach((jenis) => {
-          const chip = document.createElement("button");
-          chip.type = "button";
-          chip.className = "chip" + (jenis === state.jenis ? " active" : "");
-          chip.textContent = jenis;
-          chip.addEventListener("click", () => {
-            state.jenis = jenis;
-            state.page = 1;
-            renderJenisChips();
-            renderServices();
-          });
-          el.jenisChips.appendChild(chip);
         });
       }
 
@@ -1031,7 +1081,6 @@
         const q = state.search;
         const filtered = state.services.filter((s) => {
           if (state.platform !== "Semua" && s.platform !== state.platform) return false;
-          if (state.jenis !== "Semua" && s.jenis_layanan !== state.jenis) return false;
           if (!q) return true;
           const text = `${s.nama_layanan} ${s.jenis_layanan} ${s.platform}`.toLowerCase();
           return text.includes(q);
@@ -1063,30 +1112,64 @@
         el.servicesGrid.innerHTML = `<div class="error-box">${escapeHTML(message)}</div>`;
         el.pagination.innerHTML = "";
       }
-
       function renderTestimonials() {
+        stopTestiAutoScroll();
         const data = state.testimonials;
         if (!data.length) {
           el.testiSection.classList.add("hidden");
           return;
         }
 
-        el.testiGrid.innerHTML = "";
-        data.forEach((t) => {
+        const renderCard = (t) => {
           const card = document.createElement("article");
           card.className = "testi-card";
-          const stars = "★".repeat(t.bintang);
+          const stars = "&#9733;".repeat(t.bintang);
           card.innerHTML = `
             <div class="stars">${stars}</div>
             <p class="quote">"${escapeHTML(t.isi)}"</p>
             <strong>${escapeHTML(t.nama)}</strong>
             ${t.platform ? `<p class="muted" style="margin:4px 0 0;">${escapeHTML(t.platform)}</p>` : ""}
           `;
-          el.testiGrid.appendChild(card);
-        });
+          return card;
+        };
+
+        el.testiGrid.innerHTML = "";
+        data.forEach((t) => el.testiGrid.appendChild(renderCard(t)));
+        if (data.length > 1) data.forEach((t) => el.testiGrid.appendChild(renderCard(t)));
+
+        el.testiViewport.scrollLeft = 0;
         el.testiSection.classList.remove("hidden");
+        if (data.length > 1) startTestiAutoScroll();
       }
 
+      function scrollTestimonials(direction) {
+        const amount = Math.max(220, Math.floor(el.testiViewport.clientWidth * 0.7));
+        el.testiViewport.scrollBy({ left: direction * amount, behavior: "smooth" });
+      }
+
+      function startTestiAutoScroll() {
+        if (!el.testiViewport || state.testiAutoActive) return;
+        state.testiAutoActive = true;
+
+        const step = () => {
+          if (!state.testiAutoActive) return;
+          const half = el.testiViewport.scrollWidth / 2;
+          if (half > 0) {
+            el.testiViewport.scrollLeft += 0.28;
+            if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
+          }
+          state.testiAutoRaf = requestAnimationFrame(step);
+        };
+        state.testiAutoRaf = requestAnimationFrame(step);
+      }
+
+      function stopTestiAutoScroll() {
+        state.testiAutoActive = false;
+        if (state.testiAutoRaf) {
+          cancelAnimationFrame(state.testiAutoRaf);
+          state.testiAutoRaf = null;
+        }
+      }
       function renderCatatan() {
         const html = (state.branding.catatan || "").trim();
         if (!html) {
@@ -1099,9 +1182,12 @@
 
       function renderFooter() {
         const b = state.branding;
+        const waNumber = sanitizeWa(b.wa_number || DEFAULT_WA);
+        const waUrl = `https://wa.me/${waNumber}`;
         const socials = [
           ["ig_url", "Instagram", "instagram"],
           ["tiktok_url", "TikTok", "tiktok"],
+          [waUrl, "WhatsApp", "whatsapp", true],
           ["youtube_url", "YouTube", "youtube"],
           ["facebook_url", "Facebook", "facebook"],
           ["twitter_url", "Twitter", "twitter"],
@@ -1109,8 +1195,8 @@
         ];
 
         el.socialLinks.innerHTML = "";
-        socials.forEach(([key, label, icon]) => {
-          const url = (b[key] || "").trim();
+        socials.forEach(([key, label, icon, isRawUrl]) => {
+          const url = isRawUrl ? key : (b[key] || "").trim();
           if (!url) return;
           const a = document.createElement("a");
           a.className = "social-link";
@@ -1170,11 +1256,11 @@
             row.innerHTML = `
               <div class="row-between">
                 <strong>${escapeHTML(item.nama_layanan)}</strong>
-                <button class="icon-btn remove-item" data-id="${item.id}" aria-label="Hapus">🗑</button>
+                <button class="icon-btn remove-item" data-id="${item.id}" aria-label="Hapus">x</button>
               </div>
               <div class="row-between">
                 <div class="qty" data-id="${item.id}">
-                  <button type="button" class="qty-minus">−</button>
+                  <button type="button" class="qty-minus">-</button>
                   <span>${item.qty}</span>
                   <button type="button" class="qty-plus">+</button>
                 </div>
@@ -1303,6 +1389,10 @@
 
       function sanitizeText(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
       function sanitizeWa(value) { return String(value || "").replace(/\D+/g, "") || DEFAULT_WA; }
+      function parseHarga(value) {
+        const digits = String(value || "").replace(/\D+/g, "");
+        return digits ? Number(digits) : 0;
+      }
       function toNumber(value) {
         const n = Number(String(value || "").replace(/[^0-9.-]/g, ""));
         return Number.isFinite(n) ? n : 0;
@@ -1403,3 +1493,4 @@
   </script>
 </body>
 </html>
+
