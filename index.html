@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harga Jasa Sosial Media</title>
+  <meta name="description" content="Daftar harga layanan sosial media real-time dari Google Sheets." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a1645;
+      --surface: #0d1f5c;
+      --surface-2: #10256d;
+      --text: #0eeef7;
+      --text-muted: #9cdcf4;
+      --accent: #0eeef7;
+      --secondary: #126bdd;
+      --success: #2ecb71;
+      --warning: #f5b841;
+      --danger: #ff5d5d;
+      --border: rgba(14, 238, 247, 0.25);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+      --card-radius: 16px;
+      --nav-height: 72px;
+      --transition: 240ms ease;
+      --grid-bg: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      --grid-size: 24px 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      background: radial-gradient(circle at 15% 10%, rgba(18,107,221,0.35), transparent 35%), radial-gradient(circle at 85% 5%, rgba(14,238,247,0.18), transparent 28%), var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    .container { width: min(1120px, 92vw); margin: 0 auto; }
+    .section { padding: 72px 0; }
+
+    .section-title {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      margin: 0 0 14px;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+    }
+    .muted { color: var(--text-muted); margin: 0; }
+    .hidden { display: none !important; }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #07103a, #122675);
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #fff;
+      padding: 24px;
+      transition: opacity 300ms ease, visibility 300ms ease;
+    }
+    .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-brand { font-family: "Syne", sans-serif; font-size: clamp(1.5rem, 5vw, 2.6rem); margin: 0 0 10px; }
+    .loading-progress-wrap { width: min(360px, 80vw); height: 10px; background: rgba(255,255,255,0.2); border-radius: 999px; overflow: hidden; margin: 16px auto 18px; }
+    .loading-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #0eeef7, #55ffd6); transition: width 220ms ease; }
+    .loading-dots { display: inline-flex; gap: 8px; align-items: center; }
+    .loading-dots span { width: 10px; height: 10px; border-radius: 50%; background: #d9faff; animation: bounce 0.9s infinite ease-in-out; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.12s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.24s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.6; } 40% { transform: translateY(-7px); opacity: 1; } }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .nav-inner { height: var(--nav-height); display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-logo { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); background: var(--surface); }
+    .brand-name { margin: 0; font-family: "Syne", sans-serif; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-actions { display: inline-flex; align-items: center; gap: 8px; }
+
+    .icon-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+    .icon-btn:hover { transform: translateY(-1px); }
+
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #031031;
+      font-size: 11px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      padding: 0 5px;
+    }
+
+    .hero {
+      padding: 72px 0 54px;
+      position: relative;
+      overflow: clip;
+      background-image: radial-gradient(circle at 85% 15%, rgba(14,238,247,0.22), transparent 31%), radial-gradient(circle at 10% 70%, rgba(18,107,221,0.45), transparent 40%), var(--grid-bg);
+      background-size: auto, auto, var(--grid-size);
+    }
+    .hero-grid { display: grid; gap: 20px; align-items: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 70%, transparent); padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; color: var(--text-muted); max-width: max-content; }
+    .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { to { box-shadow: 0 0 0 12px transparent; } }
+    .hero h1 { font-family: "Syne", sans-serif; font-size: clamp(2rem, 6vw, 3.35rem); line-height: 1.05; margin: 12px 0; text-wrap: balance; }
+    .hero p { margin: 0; color: var(--text-muted); max-width: 680px; }
+    .cta-row { margin-top: 22px; display: inline-flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform var(--transition), filter var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .btn:hover { transform: translateY(-1px); filter: saturate(1.1); }
+    .btn-primary { background: linear-gradient(130deg, var(--accent), color-mix(in srgb, var(--secondary) 55%, var(--accent))); color: #051230; }
+    .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
+
+    .stats { margin-top: 32px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .stat { border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 76%, transparent); border-radius: 14px; padding: 12px; text-align: center; }
+    .stat strong { display: block; font-size: 1.18rem; font-family: "Syne", sans-serif; line-height: 1.2; }
+
+    .info-grid { display: grid; gap: 18px; }
+    .panel { border: 1px solid var(--border); border-radius: var(--card-radius); background: var(--surface); padding: 20px; box-shadow: var(--shadow); }
+    .steps { margin: 0; padding-left: 18px; color: var(--text-muted); }
+    .steps li { margin: 8px 0; }
+
+    .bonus-grid { margin-top: 24px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .bonus-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); min-height: 120px; }
+    .bonus-card img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
+
+    .service-topbar { display: grid; gap: 12px; margin: 22px 0; }
+    .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+    .tab, .chip { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 9px 13px; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; transition: background var(--transition), transform var(--transition), border-color var(--transition); }
+    .tab:hover, .chip:hover { transform: translateY(-1px); }
+    .tab.active, .chip.active { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 65%, transparent); }
+    .platform-icon { width: 16px; height: 16px; object-fit: contain; filter: contrast(0) brightness(2); opacity: 0.95; }
+    [data-theme="light"] .platform-icon { filter: none; opacity: 0.95; }
+
+    .control-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .input, .select { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--surface); color: var(--text); outline: none; transition: border-color var(--transition), box-shadow var(--transition); }
+    .input:focus, .select:focus { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .services-grid { display: grid; grid-template-columns: 1fr; gap: 14px; min-height: 130px; }
+    .service-card { border: 1px solid var(--border); border-radius: var(--card-radius); background: var(--surface); padding: 16px; display: grid; gap: 10px; box-shadow: var(--shadow); transform: translateY(8px); opacity: 0; animation: fadeUp 360ms ease forwards; }
+    .service-card:hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 20px 30px rgba(0,0,0,0.24), 0 0 0 1px color-mix(in srgb, var(--accent) 36%, transparent); transform: translateY(-3px); }
+    @keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
+    .row-between { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+
+    .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 9px; border: 1px solid transparent; white-space: nowrap; }
+    .badge.terlaris { background: rgba(14,238,247,0.16); color: var(--accent); border-color: rgba(14,238,247,0.35); }
+    .badge.promo { background: rgba(245,184,65,0.17); color: #ffcf5f; border-color: rgba(245,184,65,0.35); }
+    .badge.baru { background: rgba(46,203,113,0.18); color: #67e29d; border-color: rgba(46,203,113,0.38); }
+
+    .service-name { margin: 0; font-weight: 700; font-size: 1.02rem; line-height: 1.35; }
+    .service-desc { margin: 0; color: var(--text-muted); font-size: 0.94rem; }
+    .service-price { margin: 0; font-weight: 800; font-size: 1.4rem; color: var(--accent); font-family: "Syne", sans-serif; line-height: 1.1; }
+    .service-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .stock { font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 10px; border: 1px solid transparent; }
+    .stock.available { color: #68e1a0; background: rgba(46,203,113,0.15); border-color: rgba(46,203,113,0.4); }
+    .stock.empty { color: #ff9c9c; background: rgba(255,93,93,0.16); border-color: rgba(255,93,93,0.42); }
+    .stock.soon { color: #ffd579; background: rgba(245,184,65,0.16); border-color: rgba(245,184,65,0.42); }
+
+    .pagination { margin-top: 22px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .page-btn { min-width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; font-weight: 700; }
+    .page-btn.active { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+    .page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .skeleton-card {
+      border-radius: var(--card-radius);
+      min-height: 170px;
+      border: 1px solid var(--border);
+      background: linear-gradient(110deg, color-mix(in srgb, var(--surface) 90%, #ffffff 10%) 8%, color-mix(in srgb, var(--surface) 70%, #ffffff 30%) 18%, color-mix(in srgb, var(--surface) 90%, #ffffff 10%) 33%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s linear infinite;
+    }
+    @keyframes shimmer { to { background-position-x: -200%; } }
+
+    .error-box { border: 1px solid rgba(255,93,93,0.5); background: rgba(255,93,93,0.12); border-radius: 14px; padding: 16px; color: #ffd0d0; }
+    .testi-grid { margin-top: 22px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .testi-card { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: var(--surface); box-shadow: var(--shadow); }
+    .stars { color: #ffd361; letter-spacing: 1px; font-size: 1.06rem; margin-bottom: 10px; }
+    .quote { margin: 0 0 12px; color: var(--text-muted); font-style: italic; }
+
+    .note-body { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; padding: 16px; color: var(--text-muted); }
+    .note-body p:first-child { margin-top: 0; }
+    .note-body p:last-child { margin-bottom: 0; }
+
+    footer { padding: 44px 0 58px; border-top: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 45%, transparent); }
+    .footer-grid { display: grid; gap: 18px; }
+    .socials { display: flex; gap: 10px; flex-wrap: wrap; }
+    .social-link { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); display: grid; place-items: center; background: var(--surface); transition: transform var(--transition), border-color var(--transition); }
+    .social-link:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 80%, transparent); }
+    .social-link img { width: 18px; height: 18px; filter: contrast(0) brightness(2); }
+    [data-theme="light"] .social-link img { filter: none; }
+
+    .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
+    .cart-overlay.show { opacity: 1; pointer-events: auto; }
+    .cart-drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: min(420px, 100%);
+      height: 100vh;
+      z-index: 1200;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transform: translateX(102%);
+      transition: transform 260ms ease;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .cart-drawer.show { transform: translateX(0); }
+    .cart-head, .cart-foot { padding: 16px; border-bottom: 1px solid var(--border); }
+    .cart-foot { border-top: 1px solid var(--border); border-bottom: 0; display: grid; gap: 10px; }
+    .cart-list { padding: 12px 16px; overflow: auto; display: grid; gap: 10px; align-content: start; }
+    .cart-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: color-mix(in srgb, var(--surface) 80%, transparent); }
+    .qty { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .qty button { border: 0; width: 30px; height: 30px; background: transparent; color: var(--text); cursor: pointer; }
+    .qty span { min-width: 32px; text-align: center; font-weight: 700; }
+
+    .floating-wa, .scroll-top {
+      position: fixed;
+      right: 16px;
+      z-index: 900;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), opacity var(--transition);
+    }
+    .floating-wa { bottom: 18px; padding: 13px 16px; background: #1fa855; color: #fff; font-weight: 700; }
+    .scroll-top { bottom: 78px; width: 42px; height: 42px; background: var(--accent); color: #031031; font-weight: 900; opacity: 0; pointer-events: none; transform: translateY(8px); }
+    .scroll-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    .promo-modal { position: fixed; inset: 0; z-index: 1300; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 20px; }
+    .promo-modal.show { display: flex; }
+    .promo-box { position: relative; width: min(560px, 100%); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+    .promo-box img { width: 100%; max-height: 76vh; object-fit: contain; background: #00000030; }
+    .promo-close { position: absolute; right: 10px; top: 10px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 20px; cursor: pointer; }
+
+    @media (min-width: 720px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .control-row { grid-template-columns: 1fr 220px; }
+      .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1.2fr 1fr; align-items: start; }
+    }
+    @media (min-width: 980px) { .services-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hero { padding-top: 88px; } }
+
+    @media (max-width: 640px) {
+      .cart-drawer {
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        height: min(78vh, 560px);
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        transform: translateY(102%);
+      }
+      .cart-drawer.show { transform: translateY(0); }
+      .stats { grid-template-columns: 1fr; }
+      .hero { padding-top: 56px; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div id="loadingOverlay" class="loading-overlay" aria-live="polite">
+    <div>
+      <p id="loadingBrand" class="loading-brand">Memuat data...</p>
+      <div class="loading-progress-wrap" aria-hidden="true">
+        <div id="loadingProgress" class="loading-progress"></div>
+      </div>
+      <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <div id="promoModal" class="promo-modal" role="dialog" aria-modal="true" aria-label="Promo">
+    <div class="promo-box">
+      <button id="promoClose" class="promo-close" aria-label="Tutup">&times;</button>
+      <img id="promoImage" loading="lazy" alt="Promo" />
+    </div>
+  </div>
+
+  <div id="cartOverlay" class="cart-overlay"></div>
+  <aside id="cartDrawer" class="cart-drawer" aria-label="Keranjang">
+    <div class="cart-head row-between">
+      <h3 style="margin:0; font-family:Syne,sans-serif;">Keranjang</h3>
+      <button class="icon-btn" id="closeCartBtn" aria-label="Tutup keranjang">&times;</button>
+    </div>
+    <div id="cartList" class="cart-list"></div>
+    <div class="cart-foot">
+      <div class="row-between"><strong>Total</strong><strong id="grandTotal">Rp 0</strong></div>
+      <button id="orderWaBtn" class="btn btn-primary">Pesan Sekarang via WhatsApp</button>
+      <button id="clearCartBtn" class="btn btn-outline">Kosongkan Keranjang</button>
+    </div>
+  </aside>
+
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#top" class="brand" aria-label="Beranda">
+        <img id="brandLogo" class="brand-logo hidden" alt="Logo brand" loading="lazy" />
+        <h2 id="brandName" class="brand-name">Brand</h2>
+      </a>
+      <div class="nav-actions">
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle tema">☀</button>
+        <button id="cartBtn" class="icon-btn" aria-label="Buka keranjang">
+          🛒
+          <span id="cartBadge" class="cart-badge hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <span class="hero-tag"><span class="pulse"></span><span id="heroTagline">Layanan aktif 24/7</span></span>
+        <h1 id="heroTitle">Solusi Digital Terlengkap</h1>
+        <p id="heroSubtitle">Boost followers, views, likes - cepat, aman, terjangkau.</p>
+        <div class="cta-row">
+          <button id="ctaServices" class="btn btn-primary">Lihat Layanan</button>
+          <a id="ctaWhatsapp" class="btn btn-outline" target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>10K+</strong><span>Order</span></div>
+          <div class="stat"><strong>500+</strong><span>Pelanggan</span></div>
+          <div class="stat"><strong>99%</strong><span>Berhasil</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="infoSection" class="section">
+      <div class="container info-grid">
+        <article id="infoPanel" class="panel hidden">
+          <h2 id="infoTitle" class="section-title"></h2>
+          <p id="infoBody" class="muted"></p>
+        </article>
+        <article class="panel">
+          <h2 class="section-title">Cara Order</h2>
+          <ol class="steps">
+            <li>Pilih layanan</li>
+            <li>Masukkan ke keranjang</li>
+            <li>Klik Pesan Sekarang</li>
+            <li>Kirim link akun/konten via WhatsApp</li>
+            <li>Tunggu proses selesai</li>
+            <li>Jangan lupa klaim bonus 🎁</li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <section id="bonusSection" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Bonus</h2>
+        <p class="muted">Klaim bonus setelah order selesai.</p>
+        <div id="bonusGrid" class="bonus-grid"></div>
+      </div>
+    </section>
+
+    <section id="servicesSection" class="section">
+      <div class="container">
+        <h2 class="section-title">Daftar Layanan</h2>
+        <p class="muted">Pilih platform, filter kategori, lalu tambah ke keranjang.</p>
+
+        <div class="service-topbar">
+          <div id="platformTabs" class="tabs"></div>
+          <div id="jenisChips" class="chips"></div>
+          <div class="control-row">
+            <input id="searchInput" class="input" type="search" placeholder="Cari layanan, jenis, platform..." autocomplete="off" />
+            <select id="sortSelect" class="select" aria-label="Urutkan layanan">
+              <option value="default">Default</option>
+              <option value="cheap">Harga Termurah</option>
+              <option value="expensive">Harga Termahal</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="servicesGrid" class="services-grid" aria-live="polite"></div>
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </section>
+
+    <section id="testiSection" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Testimoni</h2>
+        <p class="muted">Pengalaman pelanggan setelah order.</p>
+        <div id="testiGrid" class="testi-grid"></div>
+      </div>
+    </section>
+
+    <section id="noteSection" class="section hidden">
+      <div class="container">
+        <h2 class="section-title">Catatan & Ketentuan</h2>
+        <div id="noteBody" class="note-body"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px;">
+          <img id="footerLogo" class="brand-logo hidden" alt="Logo footer" loading="lazy" />
+          <h3 id="footerBrand" class="brand-name" style="font-size:1.2rem;">Brand</h3>
+        </div>
+        <p id="footerText" class="muted"></p>
+      </div>
+      <div>
+        <div id="socialLinks" class="socials"></div>
+        <a id="footerWaBtn" class="floating-wa" style="position:static; margin-top:14px; display:inline-block;" target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
+      </div>
+    </div>
+  </footer>
+
+  <button id="scrollTopBtn" class="scroll-top" aria-label="Kembali ke atas">↑</button>
+  <a id="floatWaBtn" class="floating-wa" target="_blank" rel="noopener noreferrer">Chat WA</a>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const CSV_URLS = {
+        branding: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYY28haMZrDrwXrYkOBIlHEptevtiv7O8M8RkR0G_K5vZacWRJNwGM-5N3wCjDaU-9KqzywcaL8DA/pub?gid=0&single=true&output=csv",
+        data: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYY28haMZrDrwXrYkOBIlHEptevtiv7O8M8RkR0G_K5vZacWRJNwGM-5N3wCjDaU-9KqzywcaL8DA/pub?gid=1910038505&single=true&output=csv",
+        testimoni: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYY28haMZrDrwXrYkOBIlHEptevtiv7O8M8RkR0G_K5vZacWRJNwGM-5N3wCjDaU-9KqzywcaL8DA/pub?gid=1790988718&single=true&output=csv"
+      };
+      const CACHE_KEY = "smm_csv_cache_v1";
+      const THEME_KEY = "smm_theme_pref";
+      const POPUP_SEEN_KEY = "smm_popup_seen";
+      const PER_PAGE = 20;
+      const DEFAULT_WA = "6285385535252";
+
+      const simpleIconMap = {
+        instagram: "instagram",
+        tiktok: "tiktok",
+        youtube: "youtube",
+        facebook: "facebook",
+        twitter: "x",
+        spotify: "spotify",
+        telegram: "telegram",
+        whatsapp: "whatsapp"
+      };
+
+      const state = {
+        branding: {},
+        services: [],
+        testimonials: [],
+        platform: "Semua",
+        jenis: "Semua",
+        search: "",
+        sort: "default",
+        page: 1,
+        cart: []
+      };
+
+      const el = {
+        body: document.body,
+        loadingOverlay: document.getElementById("loadingOverlay"),
+        loadingBrand: document.getElementById("loadingBrand"),
+        loadingProgress: document.getElementById("loadingProgress"),
+        brandName: document.getElementById("brandName"),
+        brandLogo: document.getElementById("brandLogo"),
+        heroTitle: document.getElementById("heroTitle"),
+        heroSubtitle: document.getElementById("heroSubtitle"),
+        heroTagline: document.getElementById("heroTagline"),
+        ctaServices: document.getElementById("ctaServices"),
+        ctaWhatsapp: document.getElementById("ctaWhatsapp"),
+        themeToggle: document.getElementById("themeToggle"),
+        cartBtn: document.getElementById("cartBtn"),
+        cartBadge: document.getElementById("cartBadge"),
+        platformTabs: document.getElementById("platformTabs"),
+        jenisChips: document.getElementById("jenisChips"),
+        searchInput: document.getElementById("searchInput"),
+        sortSelect: document.getElementById("sortSelect"),
+        servicesGrid: document.getElementById("servicesGrid"),
+        pagination: document.getElementById("pagination"),
+        servicesSection: document.getElementById("servicesSection"),
+        infoSection: document.getElementById("infoSection"),
+        infoPanel: document.getElementById("infoPanel"),
+        infoTitle: document.getElementById("infoTitle"),
+        infoBody: document.getElementById("infoBody"),
+        bonusSection: document.getElementById("bonusSection"),
+        bonusGrid: document.getElementById("bonusGrid"),
+        testiSection: document.getElementById("testiSection"),
+        testiGrid: document.getElementById("testiGrid"),
+        noteSection: document.getElementById("noteSection"),
+        noteBody: document.getElementById("noteBody"),
+        footerLogo: document.getElementById("footerLogo"),
+        footerBrand: document.getElementById("footerBrand"),
+        footerText: document.getElementById("footerText"),
+        socialLinks: document.getElementById("socialLinks"),
+        footerWaBtn: document.getElementById("footerWaBtn"),
+        floatWaBtn: document.getElementById("floatWaBtn"),
+        scrollTopBtn: document.getElementById("scrollTopBtn"),
+        cartOverlay: document.getElementById("cartOverlay"),
+        cartDrawer: document.getElementById("cartDrawer"),
+        closeCartBtn: document.getElementById("closeCartBtn"),
+        cartList: document.getElementById("cartList"),
+        grandTotal: document.getElementById("grandTotal"),
+        orderWaBtn: document.getElementById("orderWaBtn"),
+        clearCartBtn: document.getElementById("clearCartBtn"),
+        promoModal: document.getElementById("promoModal"),
+        promoImage: document.getElementById("promoImage"),
+        promoClose: document.getElementById("promoClose")
+      };
+
+      init();
+
+      async function init() {
+        bindStaticEvents();
+        applySavedTheme();
+        startProgressAnimation();
+        renderSkeletonCards(6);
+        renderCart();
+
+        try {
+          const data = await getAllData();
+          state.branding = data.branding;
+          state.services = data.services;
+          state.testimonials = data.testimonials;
+
+          applyBranding();
+          renderPlatformTabs();
+          renderJenisChips();
+          renderServices();
+          renderTestimonials();
+          renderInfo();
+          renderBonus();
+          renderCatatan();
+          renderFooter();
+          maybeShowPromo();
+        } catch (error) {
+          renderError("Gagal memuat data CSV. Pastikan link Google Sheets publik CSV dan bukan halaman HTML.");
+        } finally {
+          finishLoading();
+        }
+      }
+
+      function bindStaticEvents() {
+        el.ctaServices.addEventListener("click", () => {
+          el.servicesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        el.searchInput.addEventListener("input", (e) => {
+          state.search = (e.target.value || "").trim().toLowerCase();
+          state.page = 1;
+          renderServices();
+        });
+
+        el.sortSelect.addEventListener("change", (e) => {
+          state.sort = e.target.value;
+          state.page = 1;
+          renderServices();
+        });
+
+        el.themeToggle.addEventListener("click", toggleTheme);
+        el.cartBtn.addEventListener("click", () => setCartOpen(true));
+        el.closeCartBtn.addEventListener("click", () => setCartOpen(false));
+        el.cartOverlay.addEventListener("click", () => setCartOpen(false));
+
+        el.clearCartBtn.addEventListener("click", () => {
+          state.cart = [];
+          renderCart();
+        });
+
+        el.orderWaBtn.addEventListener("click", () => {
+          if (!state.cart.length) return;
+          openWhatsappOrder();
+        });
+
+        el.scrollTopBtn.addEventListener("click", () => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 300) el.scrollTopBtn.classList.add("show");
+          else el.scrollTopBtn.classList.remove("show");
+        });
+
+        el.promoClose.addEventListener("click", closePromo);
+        el.promoModal.addEventListener("click", (e) => {
+          if (e.target === el.promoModal) closePromo();
+        });
+      }
+
+      function startProgressAnimation() {
+        let progress = 8;
+        el.loadingProgress.style.width = progress + "%";
+        const timer = setInterval(() => {
+          progress = Math.min(92, progress + Math.random() * 12);
+          el.loadingProgress.style.width = progress.toFixed(0) + "%";
+          if (el.loadingOverlay.classList.contains("hidden")) clearInterval(timer);
+        }, 210);
+      }
+
+      function finishLoading() {
+        el.loadingProgress.style.width = "100%";
+        setTimeout(() => el.loadingOverlay.classList.add("hidden"), 280);
+      }
+
+      function applySavedTheme() {
+        const theme = localStorage.getItem(THEME_KEY) || "dark";
+        setTheme(theme);
+      }
+
+      function toggleTheme() {
+        const current = el.body.getAttribute("data-theme") || "dark";
+        const next = current === "dark" ? "light" : "dark";
+        setTheme(next);
+        localStorage.setItem(THEME_KEY, next);
+      }
+
+      function setTheme(theme) {
+        el.body.setAttribute("data-theme", theme);
+        el.themeToggle.textContent = theme === "dark" ? "☀" : "🌙";
+      }
+
+      async function getAllData() {
+        const cached = loadCache();
+        if (cached) return cached;
+
+        const [brandingText, dataText, testiText] = await Promise.all([
+          fetchCsv(CSV_URLS.branding),
+          fetchCsv(CSV_URLS.data),
+          fetchCsv(CSV_URLS.testimoni)
+        ]);
+
+        const brandingRows = csvToObjects(brandingText);
+        const dataRows = csvToObjects(dataText);
+        const testiRows = csvToObjects(testiText);
+
+        const result = {
+          branding: normalizeBranding(brandingRows),
+          services: normalizeServices(dataRows),
+          testimonials: normalizeTestimonials(testiRows)
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(result));
+        return result;
+      }
+
+      function loadCache() {
+        try {
+          const raw = sessionStorage.getItem(CACHE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.services)) return null;
+          return parsed;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      async function fetchCsv(url) {
+        const resp = await fetch(url, { mode: "cors", cache: "no-store" });
+        const text = await resp.text();
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const type = (resp.headers.get("content-type") || "").toLowerCase();
+        const looksHtml = /^\s*<!doctype html|^\s*<html[\s>]/i.test(text) || /<head[\s>]|<body[\s>]/i.test(text.slice(0, 250));
+        if (type.includes("text/html") || looksHtml) throw new Error("Invalid CSV response (HTML).");
+        return text;
+      }
+
+      function parseCSV(input) {
+        const rows = [];
+        let row = [];
+        let value = "";
+        let inQuotes = false;
+        const text = String(input || "").replace(/^\uFEFF/, "");
+
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          const next = text[i + 1];
+          if (ch === "\"") {
+            if (inQuotes && next === "\"") {
+              value += "\"";
+              i++;
+            } else inQuotes = !inQuotes;
+          } else if (ch === "," && !inQuotes) {
+            row.push(value);
+            value = "";
+          } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
+            if (ch === "\r" && next === "\n") i++;
+            row.push(value);
+            rows.push(row);
+            row = [];
+            value = "";
+          } else value += ch;
+        }
+
+        if (value.length || row.length) {
+          row.push(value);
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function csvToObjects(csv) {
+        const matrix = parseCSV(csv);
+        if (!matrix.length) return [];
+
+        const headers = matrix[0].map(normalizeHeader);
+        const out = [];
+        for (let i = 1; i < matrix.length; i++) {
+          const row = matrix[i];
+          if (!row || row.every((cell) => !String(cell || "").trim())) continue;
+          const obj = {};
+          headers.forEach((h, idx) => {
+            if (!h) return;
+            obj[h] = String(row[idx] || "").trim();
+          });
+          out.push(obj);
+        }
+        return out;
+      }
+
+      function normalizeHeader(h) {
+        return String(h || "").trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+      }
+
+      function normalizeBranding(rows) {
+        const brand = {};
+        rows.forEach((row) => {
+          const key = normalizeHeader(row.key || row.kunci || "");
+          if (!key) return;
+          brand[key] = String(row.value || "").trim();
+        });
+        return brand;
+      }
+
+      function normalizeServices(rows) {
+        const out = [];
+        rows.forEach((row, index) => {
+          const item = {
+            id: "srv-" + index,
+            idx: index,
+            nama_layanan: sanitizeText(row.nama_layanan),
+            platform: sanitizeText(row.platform),
+            jenis_layanan: sanitizeText(row.jenis_layanan),
+            harga_num: toNumber(row.harga),
+            harga_raw: sanitizeText(row.harga),
+            satuan: sanitizeText(row.satuan),
+            badge: sanitizeText(row.badge),
+            stok: sanitizeText(row.stok).toLowerCase(),
+            deskripsi: sanitizeText(row.deskripsi)
+          };
+          if (!item.nama_layanan || !item.platform) return;
+          out.push(item);
+        });
+        return out;
+      }
+
+      function normalizeTestimonials(rows) {
+        const out = [];
+        rows.forEach((row, index) => {
+          const bintang = clamp(toNumber(row.bintang), 1, 5) || 5;
+          const isi = sanitizeText(row.isi);
+          const nama = sanitizeText(row.nama);
+          const platform = sanitizeText(row.platform_order);
+          if (!isi || !nama) return;
+          out.push({ id: "testi-" + index, isi, nama, platform, bintang });
+        });
+        return out;
+      }
+
+      function applyBranding() {
+        const b = state.branding;
+        const brandName = (b.brand_name || "").trim();
+        el.loadingBrand.textContent = brandName || "Memuat data...";
+        if (brandName) {
+          setText(el.brandName, brandName);
+          setText(el.footerBrand, brandName);
+          el.brandName.classList.remove("hidden");
+          el.footerBrand.classList.remove("hidden");
+        } else {
+          el.brandName.classList.add("hidden");
+          el.footerBrand.classList.add("hidden");
+        }
+
+        const heroTitle = (b.hero_title || "").trim();
+        const heroSubtitle = (b.hero_subtitle || "").trim();
+        if (heroTitle) {
+          setText(el.heroTitle, heroTitle);
+          el.heroTitle.classList.remove("hidden");
+        } else {
+          el.heroTitle.classList.add("hidden");
+        }
+        if (heroSubtitle) {
+          setText(el.heroSubtitle, heroSubtitle);
+          el.heroSubtitle.classList.remove("hidden");
+        } else {
+          el.heroSubtitle.classList.add("hidden");
+        }
+        setImageOrHide(el.brandLogo, b.logo_url);
+        setImageOrHide(el.footerLogo, b.logo_url);
+
+        const waNumber = sanitizeWa(b.wa_number || DEFAULT_WA);
+        const waGreeting = b.wa_greeting || "Halo, saya ingin order:";
+        const waBase = `https://wa.me/${waNumber}`;
+        const waLink = `${waBase}?text=${encodeURIComponent(waGreeting)}`;
+        el.ctaWhatsapp.href = waLink;
+        el.footerWaBtn.href = waLink;
+        el.floatWaBtn.href = waLink;
+
+        const footerText = (b.footer_text || "").trim();
+        if (footerText) {
+          setText(el.footerText, footerText);
+          el.footerText.classList.remove("hidden");
+        } else {
+          el.footerText.classList.add("hidden");
+        }
+        applyThemeColors(b);
+        startTaglineAnimation();
+      }
+
+      function renderInfo() {
+        const b = state.branding;
+        const hasInfo = Boolean((b.info_title || "").trim() && (b.info_body || "").trim());
+        if (!hasInfo) {
+          el.infoPanel.classList.add("hidden");
+          return;
+        }
+        setText(el.infoTitle, b.info_title);
+        setText(el.infoBody, b.info_body);
+        el.infoPanel.classList.remove("hidden");
+      }
+
+      function renderBonus() {
+        const b = state.branding;
+        const bonuses = [b.bonus_1, b.bonus_2, b.bonus_3].filter(Boolean);
+        if (!bonuses.length) {
+          el.bonusSection.classList.add("hidden");
+          return;
+        }
+
+        el.bonusGrid.innerHTML = "";
+        bonuses.slice(0, 3).forEach((url) => {
+          const card = document.createElement("div");
+          card.className = "bonus-card";
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = "Bonus";
+          img.loading = "lazy";
+          img.onerror = () => card.remove();
+          card.appendChild(img);
+          el.bonusGrid.appendChild(card);
+        });
+        el.bonusSection.classList.remove("hidden");
+      }
+
+      function maybeShowPromo() {
+        const url = (state.branding.pop_up || "").trim();
+        if (!url) return;
+        if (sessionStorage.getItem(POPUP_SEEN_KEY) === "1") return;
+
+        el.promoImage.src = url;
+        el.promoImage.onerror = closePromo;
+        el.promoModal.classList.add("show");
+        sessionStorage.setItem(POPUP_SEEN_KEY, "1");
+      }
+
+      function closePromo() { el.promoModal.classList.remove("show"); }
+
+      function renderPlatformTabs() {
+        const platforms = ["Semua", ...getPlatformsInOrder()];
+        el.platformTabs.innerHTML = "";
+        platforms.forEach((p) => {
+          const tab = document.createElement("button");
+          tab.className = "tab" + (p === state.platform ? " active" : "");
+          tab.type = "button";
+          tab.innerHTML = `${platformIconHtml(p)}<span>${escapeHTML(p)}</span>`;
+          tab.addEventListener("click", () => {
+            state.platform = p;
+            state.jenis = "Semua";
+            state.page = 1;
+            renderPlatformTabs();
+            renderJenisChips();
+            renderServices();
+          });
+          el.platformTabs.appendChild(tab);
+        });
+      }
+
+      function renderJenisChips() {
+        const jenisSet = new Set();
+        state.services.forEach((s) => {
+          if (state.platform !== "Semua" && s.platform !== state.platform) return;
+          if (s.jenis_layanan) jenisSet.add(s.jenis_layanan);
+        });
+        const chips = ["Semua", ...Array.from(jenisSet)];
+        if (!chips.includes(state.jenis)) state.jenis = "Semua";
+
+        el.jenisChips.innerHTML = "";
+        chips.forEach((jenis) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "chip" + (jenis === state.jenis ? " active" : "");
+          chip.textContent = jenis;
+          chip.addEventListener("click", () => {
+            state.jenis = jenis;
+            state.page = 1;
+            renderJenisChips();
+            renderServices();
+          });
+          el.jenisChips.appendChild(chip);
+        });
+      }
+
+      function renderServices() {
+        const all = getFilteredServices();
+        const totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+        if (state.page > totalPages) state.page = totalPages;
+
+        const start = (state.page - 1) * PER_PAGE;
+        const pageItems = all.slice(start, start + PER_PAGE);
+        el.servicesGrid.innerHTML = "";
+
+        if (!pageItems.length) {
+          el.servicesGrid.innerHTML = '<div class="error-box">Tidak ada layanan yang cocok dengan filter saat ini.</div>';
+          el.pagination.innerHTML = "";
+          return;
+        }
+
+        pageItems.forEach((item, idx) => {
+          const card = document.createElement("article");
+          card.className = "service-card";
+          card.style.animationDelay = (idx * 22) + "ms";
+
+          const isOut = item.stok.includes("habis");
+          const stockType = item.stok.includes("segera") ? "soon" : (isOut ? "empty" : "available");
+          const stockLabel = item.stok.includes("segera") ? "Segera" : (isOut ? "Habis" : "Tersedia");
+          const badgeClass = badgeClassName(item.badge);
+
+          card.innerHTML = `
+            <div class="row-between">
+              <span class="hero-tag" style="padding:5px 10px; font-size:12px;">
+                ${platformIconHtml(item.platform)}<span>${escapeHTML(item.platform)}</span>
+              </span>
+              ${item.badge ? `<span class="badge ${badgeClass}">${escapeHTML(item.badge)}</span>` : ""}
+            </div>
+            <h3 class="service-name">${escapeHTML(item.nama_layanan)}</h3>
+            ${item.deskripsi ? `<p class="service-desc">${escapeHTML(item.deskripsi)}</p>` : ""}
+            <p class="service-price">${formatRupiah(item.harga_num)}${item.satuan ? ` <span style="font-size:.86rem; font-family:DM Sans; color:var(--text-muted); font-weight:600;">/${escapeHTML(item.satuan)}</span>` : ""}</p>
+            <div class="service-meta">
+              <span class="stock ${stockType}">${stockLabel}</span>
+              <button class="btn btn-primary add-cart" ${isOut ? "disabled" : ""} data-id="${item.id}">Tambah ke Keranjang</button>
+            </div>
+          `;
+
+          const btn = card.querySelector(".add-cart");
+          if (btn) btn.addEventListener("click", () => addToCart(item.id));
+          el.servicesGrid.appendChild(card);
+        });
+
+        renderPagination(totalPages);
+      }
+
+      function renderPagination(totalPages) {
+        el.pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prev = createPageBtn("Prev", state.page === 1, () => goPage(state.page - 1));
+        el.pagination.appendChild(prev);
+
+        for (let p = 1; p <= totalPages; p++) {
+          const btn = createPageBtn(String(p), false, () => goPage(p));
+          if (p === state.page) btn.classList.add("active");
+          el.pagination.appendChild(btn);
+        }
+
+        const next = createPageBtn("Next", state.page === totalPages, () => goPage(state.page + 1));
+        el.pagination.appendChild(next);
+      }
+
+      function goPage(page) {
+        state.page = page;
+        renderServices();
+        el.servicesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function createPageBtn(text, disabled, onClick) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "page-btn";
+        btn.textContent = text;
+        btn.disabled = disabled;
+        btn.addEventListener("click", onClick);
+        return btn;
+      }
+
+      function getFilteredServices() {
+        const q = state.search;
+        const filtered = state.services.filter((s) => {
+          if (state.platform !== "Semua" && s.platform !== state.platform) return false;
+          if (state.jenis !== "Semua" && s.jenis_layanan !== state.jenis) return false;
+          if (!q) return true;
+          const text = `${s.nama_layanan} ${s.jenis_layanan} ${s.platform}`.toLowerCase();
+          return text.includes(q);
+        });
+
+        const byDefault = (a, b) => {
+          const aTop = isTerlaris(a.badge) ? 0 : 1;
+          const bTop = isTerlaris(b.badge) ? 0 : 1;
+          if (aTop !== bTop) return aTop - bTop;
+          return a.idx - b.idx;
+        };
+
+        if (state.sort === "cheap") {
+          return [...filtered].sort((a, b) => (a.harga_num || Number.MAX_SAFE_INTEGER) - (b.harga_num || Number.MAX_SAFE_INTEGER));
+        }
+        if (state.sort === "expensive") {
+          return [...filtered].sort((a, b) => (b.harga_num || 0) - (a.harga_num || 0));
+        }
+        return [...filtered].sort(byDefault);
+      }
+
+      function renderSkeletonCards(count) {
+        const cards = [];
+        for (let i = 0; i < count; i++) cards.push('<div class="skeleton-card"></div>');
+        el.servicesGrid.innerHTML = cards.join("");
+      }
+
+      function renderError(message) {
+        el.servicesGrid.innerHTML = `<div class="error-box">${escapeHTML(message)}</div>`;
+        el.pagination.innerHTML = "";
+      }
+
+      function renderTestimonials() {
+        const data = state.testimonials;
+        if (!data.length) {
+          el.testiSection.classList.add("hidden");
+          return;
+        }
+
+        el.testiGrid.innerHTML = "";
+        data.forEach((t) => {
+          const card = document.createElement("article");
+          card.className = "testi-card";
+          const stars = "★".repeat(t.bintang);
+          card.innerHTML = `
+            <div class="stars">${stars}</div>
+            <p class="quote">"${escapeHTML(t.isi)}"</p>
+            <strong>${escapeHTML(t.nama)}</strong>
+            ${t.platform ? `<p class="muted" style="margin:4px 0 0;">${escapeHTML(t.platform)}</p>` : ""}
+          `;
+          el.testiGrid.appendChild(card);
+        });
+        el.testiSection.classList.remove("hidden");
+      }
+
+      function renderCatatan() {
+        const html = (state.branding.catatan || "").trim();
+        if (!html) {
+          el.noteSection.classList.add("hidden");
+          return;
+        }
+        el.noteBody.innerHTML = sanitizeHtml(html);
+        el.noteSection.classList.remove("hidden");
+      }
+
+      function renderFooter() {
+        const b = state.branding;
+        const socials = [
+          ["ig_url", "Instagram", "instagram"],
+          ["tiktok_url", "TikTok", "tiktok"],
+          ["youtube_url", "YouTube", "youtube"],
+          ["facebook_url", "Facebook", "facebook"],
+          ["twitter_url", "Twitter", "twitter"],
+          ["telegram_url", "Telegram", "telegram"]
+        ];
+
+        el.socialLinks.innerHTML = "";
+        socials.forEach(([key, label, icon]) => {
+          const url = (b[key] || "").trim();
+          if (!url) return;
+          const a = document.createElement("a");
+          a.className = "social-link";
+          a.href = url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.setAttribute("aria-label", label);
+          a.innerHTML = `<img loading="lazy" alt="${escapeHTML(label)}" src="${platformIconUrl(icon)}" />`;
+          el.socialLinks.appendChild(a);
+        });
+        if (!el.socialLinks.children.length) el.socialLinks.classList.add("hidden");
+        else el.socialLinks.classList.remove("hidden");
+      }
+
+      function addToCart(serviceId) {
+        const item = state.services.find((s) => s.id === serviceId);
+        if (!item || item.stok.includes("habis")) return;
+
+        const inCart = state.cart.find((c) => c.id === serviceId);
+        if (inCart) inCart.qty += 1;
+        else state.cart.push({ id: serviceId, qty: 1 });
+
+        renderCart();
+        setCartOpen(true);
+      }
+
+      function setCartOpen(open) {
+        if (open) {
+          el.cartDrawer.classList.add("show");
+          el.cartOverlay.classList.add("show");
+        } else {
+          el.cartDrawer.classList.remove("show");
+          el.cartOverlay.classList.remove("show");
+        }
+      }
+
+      function renderCart() {
+        const list = state.cart.map((entry) => {
+          const service = state.services.find((s) => s.id === entry.id);
+          if (!service) return null;
+          const subtotal = (service.harga_num || 0) * entry.qty;
+          return { ...service, qty: entry.qty, subtotal };
+        }).filter(Boolean);
+
+        const totalQty = list.reduce((a, b) => a + b.qty, 0);
+        const grandTotal = list.reduce((a, b) => a + b.subtotal, 0);
+
+        if (!list.length) {
+          el.cartList.innerHTML = '<p class="muted">Keranjang masih kosong.</p>';
+          el.orderWaBtn.disabled = true;
+        } else {
+          el.orderWaBtn.disabled = false;
+          el.cartList.innerHTML = "";
+          list.forEach((item) => {
+            const row = document.createElement("article");
+            row.className = "cart-item";
+            row.innerHTML = `
+              <div class="row-between">
+                <strong>${escapeHTML(item.nama_layanan)}</strong>
+                <button class="icon-btn remove-item" data-id="${item.id}" aria-label="Hapus">🗑</button>
+              </div>
+              <div class="row-between">
+                <div class="qty" data-id="${item.id}">
+                  <button type="button" class="qty-minus">−</button>
+                  <span>${item.qty}</span>
+                  <button type="button" class="qty-plus">+</button>
+                </div>
+                <strong>${formatRupiah(item.subtotal)}</strong>
+              </div>
+            `;
+            row.querySelector(".remove-item").addEventListener("click", () => removeCartItem(item.id));
+            row.querySelector(".qty-minus").addEventListener("click", () => changeQty(item.id, -1));
+            row.querySelector(".qty-plus").addEventListener("click", () => changeQty(item.id, 1));
+            el.cartList.appendChild(row);
+          });
+        }
+
+        setText(el.grandTotal, formatRupiah(grandTotal));
+        if (totalQty > 0) {
+          setText(el.cartBadge, String(totalQty));
+          el.cartBadge.classList.remove("hidden");
+        } else el.cartBadge.classList.add("hidden");
+      }
+
+      function removeCartItem(id) {
+        state.cart = state.cart.filter((c) => c.id !== id);
+        renderCart();
+      }
+
+      function changeQty(id, delta) {
+        const item = state.cart.find((c) => c.id === id);
+        if (!item) return;
+        item.qty = Math.max(1, item.qty + delta);
+        renderCart();
+      }
+
+      function openWhatsappOrder() {
+        const waNumber = sanitizeWa(state.branding.wa_number || DEFAULT_WA);
+        const greeting = state.branding.wa_greeting || "Halo, saya ingin order:";
+        const lines = [greeting, ""];
+        let total = 0;
+
+        state.cart.forEach((entry, idx) => {
+          const service = state.services.find((s) => s.id === entry.id);
+          if (!service) return;
+          const subtotal = (service.harga_num || 0) * entry.qty;
+          total += subtotal;
+          lines.push(`${idx + 1}. ${service.nama_layanan} x${entry.qty} = ${formatRupiah(subtotal)}`);
+        });
+        lines.push("", `Total: ${formatRupiah(total)}`, "", "Mohon konfirmasi ketersediaan. Terima kasih!");
+
+        const text = encodeURIComponent(lines.join("\n"));
+        window.open(`https://wa.me/${waNumber}?text=${text}`, "_blank", "noopener");
+      }
+
+      function startTaglineAnimation() {
+        const lines = ["Layanan aktif 24/7", "Proses cepat dan aman", "Harga hemat, hasil maksimal"];
+        let idx = 0;
+        setInterval(() => {
+          idx = (idx + 1) % lines.length;
+          el.heroTagline.textContent = lines[idx];
+        }, 2100);
+      }
+
+      function getPlatformsInOrder() {
+        const seen = new Set();
+        const out = [];
+        state.services.forEach((s) => {
+          if (!s.platform || seen.has(s.platform)) return;
+          seen.add(s.platform);
+          out.push(s.platform);
+        });
+        return out;
+      }
+
+      function platformIconHtml(platformName) {
+        const p = String(platformName || "").trim().toLowerCase();
+        const icon = simpleIconMap[p] || p;
+        if (!icon || p === "semua") return "";
+        return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" src="${platformIconUrl(icon)}" />`;
+      }
+
+      function platformIconUrl(name) {
+        return `https://cdn.jsdelivr.net/npm/simple-icons@9/icons/${encodeURIComponent(name.toLowerCase())}.svg`;
+      }
+
+      function applyThemeColors(b) {
+        const root = document.documentElement;
+        const darkFull = b.color_dark_bg && b.color_dark_surface && b.color_dark_text && b.color_dark_accent;
+        const lightFull = b.color_light_bg && b.color_light_surface && b.color_light_text && b.color_light_accent;
+        const colorDefault = b.color_default || "#0a1645";
+        const colorAccent = b.color_accent || "#0eeef7";
+        const colorSecondary = b.color_secondary || "#126bdd";
+
+        const dark = {
+          bg: darkFull ? b.color_dark_bg : colorDefault,
+          surface: darkFull ? b.color_dark_surface : shiftHex(colorDefault, 12),
+          text: darkFull ? b.color_dark_text : colorAccent,
+          accent: darkFull ? b.color_dark_accent : colorAccent,
+          secondary: colorSecondary
+        };
+        const light = {
+          bg: lightFull ? b.color_light_bg : shiftHex(colorDefault, 212),
+          surface: lightFull ? b.color_light_surface : "#ffffff",
+          text: lightFull ? b.color_light_text : shiftHex(colorDefault, 8),
+          accent: lightFull ? b.color_light_accent : shiftHex(colorAccent, -18),
+          secondary: shiftHex(colorSecondary, -10)
+        };
+
+        const applyVars = (c) => {
+          root.style.setProperty("--bg", c.bg);
+          root.style.setProperty("--surface", c.surface);
+          root.style.setProperty("--surface-2", shiftHex(c.surface, 8));
+          root.style.setProperty("--text", c.text);
+          root.style.setProperty("--text-muted", shiftHex(c.text, el.body.getAttribute("data-theme") === "dark" ? -70 : 90));
+          root.style.setProperty("--accent", c.accent);
+          root.style.setProperty("--secondary", c.secondary);
+          root.style.setProperty("--border", alphaFromHex(c.accent, 0.25));
+        };
+
+        if ((el.body.getAttribute("data-theme") || "dark") === "dark") applyVars(dark);
+        else applyVars(light);
+
+        const observer = new MutationObserver(() => {
+          if ((el.body.getAttribute("data-theme") || "dark") === "dark") applyVars(dark);
+          else applyVars(light);
+        });
+        observer.observe(el.body, { attributes: true, attributeFilter: ["data-theme"] });
+      }
+
+      function sanitizeText(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
+      function sanitizeWa(value) { return String(value || "").replace(/\D+/g, "") || DEFAULT_WA; }
+      function toNumber(value) {
+        const n = Number(String(value || "").replace(/[^0-9.-]/g, ""));
+        return Number.isFinite(n) ? n : 0;
+      }
+      function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+      function setText(node, value) { node.textContent = String(value || ""); }
+
+      function setImageOrHide(imgEl, src) {
+        if (!src) {
+          imgEl.classList.add("hidden");
+          return;
+        }
+        imgEl.src = src;
+        imgEl.classList.remove("hidden");
+        imgEl.loading = "lazy";
+        imgEl.onerror = () => imgEl.classList.add("hidden");
+      }
+
+      function formatRupiah(value) {
+        const n = Number(value) || 0;
+        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+      }
+      function isTerlaris(badge) { return String(badge || "").toLowerCase() === "terlaris"; }
+      function badgeClassName(badge) {
+        const v = String(badge || "").toLowerCase();
+        if (v === "promo") return "promo";
+        if (v === "baru") return "baru";
+        return "terlaris";
+      }
+
+      function escapeHTML(str) {
+        return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+      }
+
+      function sanitizeHtml(html) {
+        const template = document.createElement("template");
+        template.innerHTML = String(html || "");
+        const allowedTags = new Set(["P", "BR", "B", "STRONG", "I", "EM", "U", "UL", "OL", "LI", "A", "SMALL", "SPAN", "DIV"]);
+        const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT, null);
+        const toRemove = [];
+
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (!allowedTags.has(node.tagName)) {
+            toRemove.push(node);
+            continue;
+          }
+
+          [...node.attributes].forEach((attr) => {
+            const name = attr.name.toLowerCase();
+            const value = attr.value || "";
+            if (name.startsWith("on") || name === "style") {
+              node.removeAttribute(attr.name);
+              return;
+            }
+            if (name === "href") {
+              const ok = /^(https?:|mailto:|tel:|#)/i.test(value.trim());
+              if (!ok) node.removeAttribute("href");
+              else {
+                node.setAttribute("target", "_blank");
+                node.setAttribute("rel", "noopener noreferrer");
+              }
+            } else if (!["href", "target", "rel"].includes(name)) node.removeAttribute(attr.name);
+          });
+        }
+
+        toRemove.forEach((node) => {
+          const text = document.createTextNode(node.textContent || "");
+          node.replaceWith(text);
+        });
+        return template.innerHTML;
+      }
+
+      function shiftHex(hex, amount) {
+        const c = parseHex(hex);
+        if (!c) return hex;
+        return rgbToHex(clamp(c.r + amount, 0, 255), clamp(c.g + amount, 0, 255), clamp(c.b + amount, 0, 255));
+      }
+
+      function alphaFromHex(hex, alpha) {
+        const c = parseHex(hex);
+        if (!c) return "rgba(14,238,247,0.25)";
+        return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+      }
+
+      function parseHex(hex) {
+        const h = String(hex || "").trim().replace(/^#/, "");
+        if (!/^[0-9a-f]{3,6}$/i.test(h)) return null;
+        const full = h.length === 3 ? h.split("").map((x) => x + x).join("") : h.slice(0, 6);
+        return {
+          r: parseInt(full.slice(0, 2), 16),
+          g: parseInt(full.slice(2, 4), 16),
+          b: parseInt(full.slice(4, 6), 16)
+        };
+      }
+      function rgbToHex(r, g, b) { return "#" + [r, g, b].map((x) => Number(x).toString(16).padStart(2, "0")).join(""); }
+    })();
+  </script>
+</body>
+</html>
