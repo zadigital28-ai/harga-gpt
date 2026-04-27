@@ -139,8 +139,8 @@
       height: 78px;
       border-radius: 18px;
       object-fit: cover;
-      border: 1px solid var(--border);
-      box-shadow: 0 12px 26px rgba(0,0,0,0.24);
+      border: 0;
+      box-shadow: none;
       animation: heroBob 3.4s ease-in-out infinite;
     }
     @keyframes heroBob {
@@ -181,14 +181,15 @@
     .bonus-card img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
 
     .service-topbar { display: grid; gap: 12px; margin: 22px 0; }
-    .tabs-wrap { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
-    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scroll-behavior: smooth; }
-    .tab { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 7px 11px; font-size: 0.86rem; line-height: 1.15; font-weight: 600; cursor: pointer; white-space: normal; text-align: center; display: inline-flex; align-items: center; gap: 6px; transition: background var(--transition), transform var(--transition), border-color var(--transition); }
+    .tabs-wrap { display: block; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .tab { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 12px; padding: 8px 10px; font-size: 0.82rem; line-height: 1.2; font-weight: 600; cursor: pointer; text-align: center; display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 40px; transition: background var(--transition), transform var(--transition), border-color var(--transition); overflow: hidden; }
+    .tab span { overflow-wrap: anywhere; }
     .tab:hover { transform: translateY(-1px); }
     .tab.active { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 65%, transparent); }
     .scroll-tab-btn {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--surface);
@@ -197,6 +198,7 @@
       font-weight: 700;
       padding: 0;
     }
+    .tabs-wrap > .scroll-tab-btn { display: none; }
     .platform-icon { width: 16px; height: 16px; object-fit: contain; filter: contrast(0) brightness(2); opacity: 0.95; }
     [data-theme="light"] .platform-icon { filter: none; opacity: 0.95; }
 
@@ -209,6 +211,8 @@
     .service-card:hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 20px 30px rgba(0,0,0,0.24), 0 0 0 1px color-mix(in srgb, var(--accent) 36%, transparent); transform: translateY(-3px); }
     @keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
     .row-between { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .service-head { display: flex; align-items: flex-start; gap: 8px; justify-content: flex-start; }
+    .service-badge { margin-left: auto; }
 
     .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 9px; border: 1px solid transparent; white-space: nowrap; }
     .badge.terlaris { background: rgba(14,238,247,0.16); color: var(--accent); border-color: rgba(14,238,247,0.35); }
@@ -320,6 +324,7 @@
 
     @media (min-width: 720px) {
       .hero-grid { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .control-row { grid-template-columns: 1fr 220px; }
       .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .info-grid { grid-template-columns: 1fr 1fr; }
@@ -389,9 +394,9 @@
         <h2 id="brandName" class="brand-name">Brand</h2>
       </a>
       <div class="nav-actions">
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle tema">Theme</button>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle tema">&#9788;</button>
         <button id="cartBtn" class="icon-btn" aria-label="Buka keranjang">
-          Cart
+          &#128722;
           <span id="cartBadge" class="cart-badge hidden">0</span>
         </button>
       </div>
@@ -548,7 +553,8 @@
         page: 1,
         cart: [],
         testiAutoRaf: null,
-        testiAutoActive: false
+        testiAutoActive: false,
+        testiAutoTimer: null
       };
 
       const el = {
@@ -727,7 +733,7 @@
 
       function setTheme(theme) {
         el.body.setAttribute("data-theme", theme);
-        el.themeToggle.textContent = theme === "dark" ? "Light" : "Dark";
+        el.themeToggle.innerHTML = theme === "dark" ? "&#9788;" : "&#9790;";
       }
 
       async function getAllData() {
@@ -1021,11 +1027,11 @@
           const badgeClass = badgeClassName(item.badge);
 
           card.innerHTML = `
-            <div class="row-between">
+            <div class="service-head">
               <span class="hero-tag" style="padding:5px 10px; font-size:12px;">
                 ${platformIconHtml(item.platform)}<span>${escapeHTML(item.platform)}</span>
               </span>
-              ${item.badge ? `<span class="badge ${badgeClass}">${escapeHTML(item.badge)}</span>` : ""}
+              ${item.badge ? `<span class="badge service-badge ${badgeClass}">${escapeHTML(item.badge)}</span>` : ""}
             </div>
             <h3 class="service-name">${escapeHTML(item.nama_layanan)}</h3>
             ${item.deskripsi ? `<p class="service-desc">${escapeHTML(item.deskripsi)}</p>` : ""}
@@ -1150,21 +1156,22 @@
       function startTestiAutoScroll() {
         if (!el.testiViewport || state.testiAutoActive) return;
         state.testiAutoActive = true;
-
-        const step = () => {
+        clearInterval(state.testiAutoTimer);
+        state.testiAutoTimer = setInterval(() => {
           if (!state.testiAutoActive) return;
           const half = el.testiViewport.scrollWidth / 2;
-          if (half > 0) {
-            el.testiViewport.scrollLeft += 0.28;
-            if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
-          }
-          state.testiAutoRaf = requestAnimationFrame(step);
-        };
-        state.testiAutoRaf = requestAnimationFrame(step);
+          if (half <= 0) return;
+          el.testiViewport.scrollLeft += 0.7;
+          if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
+        }, 28);
       }
 
       function stopTestiAutoScroll() {
         state.testiAutoActive = false;
+        if (state.testiAutoTimer) {
+          clearInterval(state.testiAutoTimer);
+          state.testiAutoTimer = null;
+        }
         if (state.testiAutoRaf) {
           cancelAnimationFrame(state.testiAutoRaf);
           state.testiAutoRaf = null;
