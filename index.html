@@ -90,7 +90,7 @@
     }
     .nav-inner { height: var(--nav-height); display: flex; align-items: center; justify-content: space-between; gap: 14px; }
     .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
-    .brand-logo { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); background: var(--surface); }
+    .brand-logo { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 0; background: transparent; }
     .brand-name { margin: 0; font-family: "Syne", sans-serif; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav-actions { display: inline-flex; align-items: center; gap: 8px; }
 
@@ -211,7 +211,7 @@
     .service-card:hover { border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 20px 30px rgba(0,0,0,0.24), 0 0 0 1px color-mix(in srgb, var(--accent) 36%, transparent); transform: translateY(-3px); }
     @keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
     .row-between { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
-    .service-head { display: flex; align-items: flex-start; gap: 8px; justify-content: flex-start; }
+    .service-head { display: flex; align-items: flex-start; gap: 8px; justify-content: flex-start; width: 100%; }
     .service-badge { margin-left: auto; }
 
     .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 9px; border: 1px solid transparent; white-space: nowrap; }
@@ -319,7 +319,7 @@
     .promo-modal { position: fixed; inset: 0; z-index: 1300; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.72); padding: 20px; }
     .promo-modal.show { display: flex; }
     .promo-box { position: relative; width: min(560px, 100%); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
-    .promo-box img { width: 100%; max-height: 76vh; object-fit: contain; background: #00000030; }
+    .promo-box img { width: 100%; max-height: 76vh; object-fit: contain; background: transparent; }
     .promo-close { position: absolute; right: 10px; top: 10px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 20px; cursor: pointer; }
 
     @media (min-width: 720px) {
@@ -554,7 +554,7 @@
         cart: [],
         testiAutoRaf: null,
         testiAutoActive: false,
-        testiAutoTimer: null
+        testiLastTs: 0
       };
 
       const el = {
@@ -1156,22 +1156,29 @@
       function startTestiAutoScroll() {
         if (!el.testiViewport || state.testiAutoActive) return;
         state.testiAutoActive = true;
-        clearInterval(state.testiAutoTimer);
-        state.testiAutoTimer = setInterval(() => {
+        state.testiLastTs = 0;
+        const speedPxPerSec = 22;
+
+        const step = (ts) => {
           if (!state.testiAutoActive) return;
+          if (!state.testiLastTs) state.testiLastTs = ts;
+
+          const delta = Math.min(40, ts - state.testiLastTs);
+          state.testiLastTs = ts;
+
           const half = el.testiViewport.scrollWidth / 2;
-          if (half <= 0) return;
-          el.testiViewport.scrollLeft += 0.7;
-          if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
-        }, 28);
+          if (half > 0) {
+            el.testiViewport.scrollLeft += (speedPxPerSec * delta) / 1000;
+            if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
+          }
+          state.testiAutoRaf = requestAnimationFrame(step);
+        };
+        state.testiAutoRaf = requestAnimationFrame(step);
       }
 
       function stopTestiAutoScroll() {
         state.testiAutoActive = false;
-        if (state.testiAutoTimer) {
-          clearInterval(state.testiAutoTimer);
-          state.testiAutoTimer = null;
-        }
+        state.testiLastTs = 0;
         if (state.testiAutoRaf) {
           cancelAnimationFrame(state.testiAutoRaf);
           state.testiAutoRaf = null;
@@ -1341,9 +1348,9 @@
 
       function platformIconHtml(platformName) {
         const p = String(platformName || "").trim().toLowerCase();
-        const icon = simpleIconMap[p] || p;
+        const icon = simpleIconMap[p];
         if (!icon || p === "semua") return "";
-        return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" src="${platformIconUrl(icon)}" />`;
+        return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" src="${platformIconUrl(icon)}" onerror="this.style.display='none'" />`;
       }
 
       function platformIconUrl(name) {
