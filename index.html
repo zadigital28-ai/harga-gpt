@@ -571,7 +571,8 @@
         page: 1,
         cart: [],
         testiAutoActive: false,
-        testiAutoTimer: null,
+        testiAutoRaf: null,
+        testiLastTs: 0,
         testiResumeTimer: null
       };
 
@@ -1017,6 +1018,7 @@
           });
           el.platformTabs.appendChild(tab);
         });
+        preparePlatformIcons(el.platformTabs);
       }
 
       function renderServices() {
@@ -1065,6 +1067,7 @@
           el.servicesGrid.appendChild(card);
         });
 
+        preparePlatformIcons(el.servicesGrid);
         renderPagination(totalPages);
       }
 
@@ -1169,11 +1172,13 @@
       function scrollTestimonials(direction) {
         const step = getTestiStep();
         stopTestiAutoScroll();
-        if (direction < 0 && el.testiViewport.scrollLeft <= 0) {
-          const half = el.testiViewport.scrollWidth / 2;
-          if (half > 0) el.testiViewport.scrollLeft = Math.max(0, half - step);
+        const half = el.testiViewport.scrollWidth / 2;
+        if (half > 0) {
+          let target = el.testiViewport.scrollLeft + (direction * step);
+          if (target < 0) target += half;
+          if (target >= half) target -= half;
+          el.testiViewport.scrollTo({ left: target, behavior: "smooth" });
         }
-        el.testiViewport.scrollBy({ left: direction * step, behavior: "smooth" });
         clearTimeout(state.testiResumeTimer);
         state.testiResumeTimer = setTimeout(() => {
           if (state.testimonials.length > 1) startTestiAutoScroll();
@@ -1183,25 +1188,36 @@
       function startTestiAutoScroll() {
         if (!el.testiViewport || state.testiAutoActive) return;
         state.testiAutoActive = true;
-        clearInterval(state.testiAutoTimer);
-        state.testiAutoTimer = setInterval(() => {
+        state.testiLastTs = 0;
+        const speedPxPerSec = 16;
+
+        const step = (ts) => {
           if (!state.testiAutoActive) return;
-          const step = getTestiStep();
+          if (!state.testiLastTs) state.testiLastTs = ts;
+
+          const delta = Math.min(34, ts - state.testiLastTs);
+          state.testiLastTs = ts;
+
           const half = el.testiViewport.scrollWidth / 2;
-          if (half <= 0) return;
-          const next = el.testiViewport.scrollLeft + step;
-          if (next >= half) {
-            el.testiViewport.scrollTo({ left: 0, behavior: "auto" });
-          } else {
-            el.testiViewport.scrollBy({ left: step, behavior: "smooth" });
+          if (half > 0) {
+            let next = el.testiViewport.scrollLeft + (speedPxPerSec * delta) / 1000;
+            if (next >= half) next -= half;
+            el.testiViewport.scrollLeft = next;
           }
-        }, 3600);
+          state.testiAutoRaf = requestAnimationFrame(step);
+        };
+
+        state.testiAutoRaf = requestAnimationFrame(step);
       }
 
       function stopTestiAutoScroll() {
         state.testiAutoActive = false;
-        clearInterval(state.testiAutoTimer);
-        state.testiAutoTimer = null;
+        state.testiLastTs = 0;
+        clearTimeout(state.testiResumeTimer);
+        if (state.testiAutoRaf) {
+          cancelAnimationFrame(state.testiAutoRaf);
+          state.testiAutoRaf = null;
+        }
       }
 
       function getTestiStep() {
@@ -1373,13 +1389,92 @@
 
       function platformIconHtml(platformName) {
         const p = normalizePlatformKey(platformName);
-        const icon = simpleIconMap[p];
-        if (!icon || p === "semua") return "";
-        return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" src="${platformIconUrl(icon)}" onerror="this.style.display='none'" />`;
+        if (p === "semua") return "";
+        const icon = resolvePlatformIconSlug(platformName);
+        return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" data-icon="${escapeHTML(icon)}" src="${platformIconUrl(icon)}" />`;
       }
 
       function platformIconUrl(name) {
         return `https://cdn.jsdelivr.net/npm/simple-icons@9/icons/${encodeURIComponent(name.toLowerCase())}.svg`;
+      }
+
+      function platformIconUrlAlt(name) {
+        return `https://cdn.simpleicons.org/${encodeURIComponent(name.toLowerCase())}`;
+      }
+
+      function platformIconUrlAlt2(name) {
+        return `https://api.iconify.design/simple-icons:${encodeURIComponent(name.toLowerCase())}.svg`;
+      }
+
+      function genericPlatformIconUrl() {
+        return "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/globe2.svg";
+      }
+
+      function resolvePlatformIconSlug(platformName) {
+        const key = normalizePlatformKey(platformName);
+        if (simpleIconMap[key]) return simpleIconMap[key];
+
+        const containsRules = [
+          ["instagram", "instagram"],
+          ["tiktok", "tiktok"],
+          ["youtube", "youtube"],
+          ["yt", "youtube"],
+          ["facebook", "facebook"],
+          ["twitter", "x"],
+          ["telegram", "telegram"],
+          ["spotify", "spotify"],
+          ["whatsapp", "whatsapp"],
+          ["linkedin", "linkedin"],
+          ["threads", "threads"],
+          ["shopee", "shopee"],
+          ["tokopedia", "tokopedia"],
+          ["lazada", "lazada"],
+          ["snackvideo", "snackvideo"],
+          ["twitch", "twitch"],
+          ["discord", "discord"],
+          ["line", "line"],
+          ["pinterest", "pinterest"],
+          ["snapchat", "snapchat"],
+          ["soundcloud", "soundcloud"],
+          ["website", "googlechrome"],
+          ["web", "googlechrome"],
+          ["google", "google"]
+        ];
+
+        for (const [needle, slug] of containsRules) {
+          if (key.includes(needle)) return slug;
+        }
+
+        return "googlechrome";
+      }
+
+      function preparePlatformIcons(root) {
+        if (!root) return;
+        const imgs = root.querySelectorAll("img.platform-icon[data-icon]");
+        imgs.forEach((img) => {
+          if (img.dataset.bound === "1") return;
+          img.dataset.bound = "1";
+          img.onerror = () => {
+            const icon = img.dataset.icon || "googlechrome";
+            const stage = Number(img.dataset.failStage || "0");
+            if (stage === 0) {
+              img.dataset.failStage = "1";
+              img.src = platformIconUrlAlt(icon);
+              return;
+            }
+            if (stage === 1) {
+              img.dataset.failStage = "2";
+              img.src = platformIconUrlAlt2(icon);
+              return;
+            }
+            if (stage === 2) {
+              img.dataset.failStage = "3";
+              img.src = genericPlatformIconUrl();
+              return;
+            }
+            img.style.display = "none";
+          };
+        });
       }
 
       function normalizePlatformKey(value) {
