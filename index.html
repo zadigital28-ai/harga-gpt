@@ -213,6 +213,7 @@
     .row-between { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
     .service-head { display: flex; align-items: flex-start; gap: 8px; justify-content: flex-start; width: 100%; }
     .service-badge { margin-left: auto; }
+    .service-platform { padding: 5px 10px; font-size: 12px; margin: 0; }
 
     .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 9px; border: 1px solid transparent; white-space: nowrap; }
     .badge.terlaris { background: rgba(14,238,247,0.16); color: var(--accent); border-color: rgba(14,238,247,0.35); }
@@ -344,7 +345,7 @@
       }
       .cart-drawer.show { transform: translateY(0); }
       .hero-grid { text-align: center; justify-items: center; }
-      .hero-tag { margin-inline: auto; }
+      .hero .hero-tag { margin-inline: auto; }
       .hero p { margin-inline: auto; }
       .cta-row { justify-content: center; }
       .hero-logo-wrap { display: flex; }
@@ -536,11 +537,28 @@
         instagram: "instagram",
         tiktok: "tiktok",
         youtube: "youtube",
+        youtubeshorts: "youtubeshorts",
         facebook: "facebook",
         twitter: "x",
+        x: "x",
+        xtwitter: "x",
+        threads: "threads",
+        linkedin: "linkedin",
+        spotifyforcreators: "spotify",
         spotify: "spotify",
         telegram: "telegram",
-        whatsapp: "whatsapp"
+        whatsapp: "whatsapp",
+        shopee: "shopee",
+        tokopedia: "tokopedia",
+        lazada: "lazada",
+        snackvideo: "snackvideo",
+        twitch: "twitch",
+        discord: "discord",
+        line: "line",
+        pinterest: "pinterest",
+        snapchat: "snapchat",
+        soundcloud: "soundcloud",
+        website: "googlechrome"
       };
 
       const state = {
@@ -552,9 +570,9 @@
         sort: "default",
         page: 1,
         cart: [],
-        testiAutoRaf: null,
         testiAutoActive: false,
-        testiLastTs: 0
+        testiAutoTimer: null,
+        testiResumeTimer: null
       };
 
       const el = {
@@ -1028,7 +1046,7 @@
 
           card.innerHTML = `
             <div class="service-head">
-              <span class="hero-tag" style="padding:5px 10px; font-size:12px;">
+              <span class="hero-tag service-platform">
                 ${platformIconHtml(item.platform)}<span>${escapeHTML(item.platform)}</span>
               </span>
               ${item.badge ? `<span class="badge service-badge ${badgeClass}">${escapeHTML(item.badge)}</span>` : ""}
@@ -1149,40 +1167,47 @@
       }
 
       function scrollTestimonials(direction) {
-        const amount = Math.max(220, Math.floor(el.testiViewport.clientWidth * 0.7));
-        el.testiViewport.scrollBy({ left: direction * amount, behavior: "smooth" });
+        const step = getTestiStep();
+        stopTestiAutoScroll();
+        if (direction < 0 && el.testiViewport.scrollLeft <= 0) {
+          const half = el.testiViewport.scrollWidth / 2;
+          if (half > 0) el.testiViewport.scrollLeft = Math.max(0, half - step);
+        }
+        el.testiViewport.scrollBy({ left: direction * step, behavior: "smooth" });
+        clearTimeout(state.testiResumeTimer);
+        state.testiResumeTimer = setTimeout(() => {
+          if (state.testimonials.length > 1) startTestiAutoScroll();
+        }, 2200);
       }
 
       function startTestiAutoScroll() {
         if (!el.testiViewport || state.testiAutoActive) return;
         state.testiAutoActive = true;
-        state.testiLastTs = 0;
-        const speedPxPerSec = 22;
-
-        const step = (ts) => {
+        clearInterval(state.testiAutoTimer);
+        state.testiAutoTimer = setInterval(() => {
           if (!state.testiAutoActive) return;
-          if (!state.testiLastTs) state.testiLastTs = ts;
-
-          const delta = Math.min(40, ts - state.testiLastTs);
-          state.testiLastTs = ts;
-
+          const step = getTestiStep();
           const half = el.testiViewport.scrollWidth / 2;
-          if (half > 0) {
-            el.testiViewport.scrollLeft += (speedPxPerSec * delta) / 1000;
-            if (el.testiViewport.scrollLeft >= half) el.testiViewport.scrollLeft = 0;
+          if (half <= 0) return;
+          const next = el.testiViewport.scrollLeft + step;
+          if (next >= half) {
+            el.testiViewport.scrollTo({ left: 0, behavior: "auto" });
+          } else {
+            el.testiViewport.scrollBy({ left: step, behavior: "smooth" });
           }
-          state.testiAutoRaf = requestAnimationFrame(step);
-        };
-        state.testiAutoRaf = requestAnimationFrame(step);
+        }, 3600);
       }
 
       function stopTestiAutoScroll() {
         state.testiAutoActive = false;
-        state.testiLastTs = 0;
-        if (state.testiAutoRaf) {
-          cancelAnimationFrame(state.testiAutoRaf);
-          state.testiAutoRaf = null;
-        }
+        clearInterval(state.testiAutoTimer);
+        state.testiAutoTimer = null;
+      }
+
+      function getTestiStep() {
+        const first = el.testiGrid.querySelector(".testi-card");
+        const cardWidth = first ? first.getBoundingClientRect().width : Math.max(240, el.testiViewport.clientWidth * 0.84);
+        return Math.round(cardWidth + 14);
       }
       function renderCatatan() {
         const html = (state.branding.catatan || "").trim();
@@ -1347,7 +1372,7 @@
       }
 
       function platformIconHtml(platformName) {
-        const p = String(platformName || "").trim().toLowerCase();
+        const p = normalizePlatformKey(platformName);
         const icon = simpleIconMap[p];
         if (!icon || p === "semua") return "";
         return `<img class="platform-icon" loading="lazy" alt="${escapeHTML(platformName)}" src="${platformIconUrl(icon)}" onerror="this.style.display='none'" />`;
@@ -1355,6 +1380,10 @@
 
       function platformIconUrl(name) {
         return `https://cdn.jsdelivr.net/npm/simple-icons@9/icons/${encodeURIComponent(name.toLowerCase())}.svg`;
+      }
+
+      function normalizePlatformKey(value) {
+        return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
       }
 
       function applyThemeColors(b) {
